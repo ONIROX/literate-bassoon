@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000;
+        }
+        canvas {
+            border: 1px solid white;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="tetris" width="240" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        function drawSquare(x, y, color) {
+            context.fillStyle = color;
+            context.fillRect(x, y, 1, 1);
+            context.strokeRect(x, y, 1, 1);
+        }
+
+        const board = Array.from({ length: 20 }, () => Array(10).fill(0));
+        let currentPiece;
+        let score = 0;
+
+        function generatePiece() {
+            const pieces = [
+                [[1, 1, 1, 1]], // I
+                [[1, 1], [1, 1]], // O
+                [[0, 1, 0], [1, 1, 1]], // T
+                [[1, 1, 0], [0, 1, 1]], // S
+                [[0, 1, 1], [1, 1, 0]], // Z
+                [[1, 0, 0], [1, 1, 1]], // L
+                [[0, 0, 1], [1, 1, 1]], // J
+            ];
+            return pieces[Math.floor(Math.random() * pieces.length)];
+        }
+
+        currentPiece = generatePiece();
+
+        function drawBoard() {
+            board.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) drawSquare(x, y, 'blue');
+                });
+            });
+        }
+
+        function merge() {
+            currentPiece.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) board[y][x] = value;
+                });
+            });
+        }
+
+        function clearLines() {
+            board.forEach((row, y) => {
+                if (row.every(value => value)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(10).fill(0));
+                    score += 100;
+                }
+            });
+        }
+
+        function drawGame() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard();
+            // Draw current piece here
+            merge();
+            clearLines();
+            requestAnimationFrame(drawGame);
+        }
+        drawGame();
+    </script>
+</body>
+</html>
