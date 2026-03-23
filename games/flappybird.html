@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { background: #70c5ce; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.5, lift: -10, velocity: 0 };
+        let pipes = [];
+        let frames = 0;
+        const pipeWidth = 50;
+        const pipeGap = 100;
+
+        function setup() {
+            bird.y = canvas.height / 2;
+            pipes.push(createPipe());
+            document.addEventListener('keydown', () => { bird.velocity += bird.lift; });
+        }
+
+        function createPipe() {
+            const height = Math.random() * (canvas.height - pipeGap - 20) + 20;
+            return { x: canvas.width, top: height, bottom: canvas.height - height - pipeGap }; 
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'yellow';
+            ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+            pipes.forEach(pipe => {
+                ctx.fillStyle = 'green';
+                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+                ctx.fillRect(pipe.x, canvas.height - pipe.bottom, pipeWidth, pipe.bottom);
+            });
+        }
+
+        function update() {
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            if (bird.y > canvas.height) bird.y = canvas.height;
+            if (bird.y < 0) bird.y = 0;
+
+            if (frames % 75 === 0) pipes.push(createPipe());
+            pipes.forEach(pipe => pipe.x -= 2);
+            if (pipes.length > 0 && pipes[0].x < -pipeWidth) pipes.shift();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            frames++;
+            requestAnimationFrame(gameLoop);
+        }
+
+        setup();
+        gameLoop();
+    </script>
+</body>
+</html>
