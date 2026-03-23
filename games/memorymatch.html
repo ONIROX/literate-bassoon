@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 150px);
+            gap: 10px;
+            margin: 20px auto;
+        }
+        .card {
+            width: 150px;
+            height: 150px;
+            background-color: #007bff;
+            border: 1px solid #000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        .card.flipped {
+            background-color: white;
+            color: black;
+            transform: rotateY(180deg);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Memory Match Game</h1>
+    <div class="game-container" id="gameContainer"></div>
+    <script>
+        const cardValues = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+
+        function shuffle(array) {
+            array.sort(() => Math.random() - 0.5);
+        }
+
+        function createCards() {
+            shuffle(cardValues);
+            const gameContainer = document.getElementById('gameContainer');
+            cardValues.forEach(value => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.setAttribute('data-value', value);
+                card.addEventListener('click', flipCard);
+                gameContainer.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            this.classList.add('flipped');
+            if (!firstCard) {
+                firstCard = this;
+            } else {
+                secondCard = this;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            lockBoard = true;
+            const isMatch = firstCard.getAttribute('data-value') === secondCard.getAttribute('data-value');
+            if (isMatch) {
+                resetBoard();
+            } else {
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    secondCard.classList.remove('flipped');
+                    resetBoard();
+                }, 1000);
+            }
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard] = [null, null];
+            lockBoard = false;
+        }
+
+        createCards();
+    </script>
+</body>
+</html>
